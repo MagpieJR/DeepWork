@@ -1,30 +1,250 @@
-import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import React, { useState } from 'react';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+} from 'react-native';
+import { signInWithEmail, signUpWithEmail, supabase } from '../services/supabase';
+import { C, T, MONO, BTN_PRIMARY } from '../theme';
+
+type AuthMode = 'signin' | 'signup';
 
 export default function LoginScreen() {
+  const [mode, setMode]       = useState<AuthMode>('signin');
+  const [email, setEmail]     = useState('');
+  const [password, setPass]   = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError]     = useState('');
+
+  const handleEmailAuth = async () => {
+    setError('');
+    if (!email.trim() || !password) {
+      setError('Email and password are required.');
+      return;
+    }
+    setLoading(true);
+    try {
+      const { error: authError } =
+        mode === 'signin'
+          ? await signInWithEmail(email.trim(), password)
+          : await signUpWithEmail(email.trim(), password);
+      if (authError) setError(authError.message);
+    } catch (e: any) {
+      setError(e.message ?? 'An error occurred.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleOAuth = async (provider: 'google' | 'apple') => {
+    setError('');
+    setLoading(true);
+    try {
+      const { error: authError } = await supabase.auth.signInWithOAuth({ provider });
+      if (authError) setError(authError.message);
+    } catch (e: any) {
+      setError(e.message ?? 'An error occurred.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>DeepWork</Text>
-      <Text style={styles.subtitle}>Login Screen (placeholder)</Text>
-    </View>
+    <KeyboardAvoidingView
+      style={styles.flex}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    >
+      <ScrollView
+        contentContainerStyle={styles.container}
+        keyboardShouldPersistTaps="handled"
+      >
+        {/* Wordmark */}
+        <Text style={styles.wordmark}>DeepWork</Text>
+        <Text style={styles.subtitle}>Focus deeper, every day</Text>
+
+        {/* Hairline divider */}
+        <View style={styles.hairline} />
+
+        {/* OAuth */}
+        <TouchableOpacity
+          style={styles.oauthBtn}
+          onPress={() => handleOAuth('google')}
+          disabled={loading}
+        >
+          <Text style={styles.oauthBtnText}>Continue with Google</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.oauthBtn}
+          onPress={() => handleOAuth('apple')}
+          disabled={loading}
+        >
+          <Text style={styles.oauthBtnText}>Continue with Apple</Text>
+        </TouchableOpacity>
+
+        {/* Divider */}
+        <View style={styles.orRow}>
+          <View style={styles.hairline} />
+          <Text style={styles.orText}>or</Text>
+          <View style={styles.hairline} />
+        </View>
+
+        {/* Email input — underline only */}
+        <View style={styles.inputGroup}>
+          <Text style={styles.inputLabel}>Email</Text>
+          <TextInput
+            style={styles.input}
+            value={email}
+            onChangeText={setEmail}
+            autoCapitalize="none"
+            keyboardType="email-address"
+            autoComplete="email"
+            placeholderTextColor={C.mutedSoft}
+            placeholder="your@email.com"
+          />
+        </View>
+
+        <View style={styles.inputGroup}>
+          <Text style={styles.inputLabel}>Password</Text>
+          <TextInput
+            style={styles.input}
+            value={password}
+            onChangeText={setPass}
+            secureTextEntry
+            autoComplete={mode === 'signup' ? 'new-password' : 'current-password'}
+            placeholderTextColor={C.mutedSoft}
+            placeholder="••••••••"
+          />
+        </View>
+
+        {!!error && <Text style={styles.errorText}>{error}</Text>}
+
+        {/* Primary CTA */}
+        <TouchableOpacity
+          style={[BTN_PRIMARY, styles.primaryBtn, loading && styles.btnDisabled]}
+          onPress={handleEmailAuth}
+          disabled={loading}
+        >
+          {loading ? (
+            <ActivityIndicator color={C.onDark} />
+          ) : (
+            <Text style={styles.primaryBtnText}>
+              {mode === 'signin' ? 'Sign In' : 'Create Account'}
+            </Text>
+          )}
+        </TouchableOpacity>
+
+        {/* Mode switch */}
+        <TouchableOpacity
+          style={styles.switchMode}
+          onPress={() => { setMode(mode === 'signin' ? 'signup' : 'signin'); setError(''); }}
+        >
+          <Text style={styles.switchText}>
+            {mode === 'signin'
+              ? "No account?  Sign up"
+              : "Have an account?  Sign in"}
+          </Text>
+        </TouchableOpacity>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
+  flex: { flex: 1, backgroundColor: C.canvas },
+
   container: {
-    flex: 1,
-    backgroundColor: '#0a0a0f',
-    alignItems: 'center',
+    flexGrow: 1,
     justifyContent: 'center',
+    paddingHorizontal: 36,
+    paddingVertical: 80,
   },
-  title: {
-    color: '#fff',
-    fontSize: 32,
-    fontWeight: 'bold',
+
+  wordmark: {
+    ...T.wordmark,
+    fontSize: 22,
+    letterSpacing: 10,
+    textAlign: 'center',
+    marginBottom: 12,
+  },
+
+  subtitle: {
+    ...T.bodySM,
+    textAlign: 'center',
+    letterSpacing: 0.5,
+    marginBottom: 48,
+  },
+
+  hairline: {
+    flex: 1,
+    height: 1,
+    backgroundColor: C.hairline,
+  },
+
+  // OAuth buttons — ghost style
+  oauthBtn: {
+    borderWidth: 1,
+    borderColor: C.hairlineStrong,
+    borderRadius: 9999,
+    paddingVertical: 14,
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  oauthBtnText: {
+    ...T.button,
+    color: C.body,
+  },
+
+  orRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 16,
+    marginVertical: 28,
+  },
+  orText: {
+    ...T.caption,
+    color: C.mutedSoft,
+  },
+
+  // Inputs
+  inputGroup: { marginBottom: 24 },
+  inputLabel: {
+    ...T.caption,
     marginBottom: 8,
   },
-  subtitle: {
-    color: '#888',
-    fontSize: 16,
+  input: {
+    ...T.bodyMD,
+    borderBottomWidth: 1,
+    borderBottomColor: C.hairlineStrong,
+    paddingVertical: 10,
+    color: C.onDark,
+  },
+
+  errorText: {
+    ...T.caption,
+    color: C.danger,
+    textAlign: 'center',
+    marginBottom: 16,
+    marginTop: -8,
+  },
+
+  primaryBtn: {
+    marginTop: 8,
+    marginBottom: 24,
+  },
+  primaryBtnText: { ...T.button },
+  btnDisabled: { opacity: 0.4 },
+
+  switchMode: { alignItems: 'center' },
+  switchText: {
+    ...T.caption,
+    color: C.mutedSoft,
+    letterSpacing: 1.5,
   },
 });
