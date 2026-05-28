@@ -40,7 +40,6 @@ export default function MainNavigator() {
           marginTop: 2,
         },
         tabBarIconStyle: { display: 'none' },
-        tabBarShowIcon: false,
       }}
     >
       <Tab.Screen name="Timer"      component={TimerScreen}      />
