@@ -8,7 +8,6 @@ import {
   RefreshControl,
 } from 'react-native';
 import { useStatsStore } from '../stores/statsStore';
-import { useTimerStore } from '../stores/timerStore';
 import { C, T, MONO } from '../theme';
 
 type BreakdownTab = 'tag' | 'task';
@@ -20,8 +19,6 @@ export default function StatisticsScreen() {
     tagBreakdown, taskBreakdown,
     loadStats,
   } = useStatsStore();
-
-  const { extraFocusEnabled, setExtraFocusEnabled } = useTimerStore();
 
   const [breakdownTab, setBreakdownTab] = useState<BreakdownTab>('tag');
   const [refreshing,   setRefreshing]   = useState(false);
@@ -47,27 +44,7 @@ export default function StatisticsScreen() {
       }
     >
       {/* ── Header ────────────────────────────────────────────────────── */}
-      <Text style={styles.wordmark}>Statistics</Text>
-      <View style={styles.hairline} />
-
-      {/* ── Extra focus toggle ─────────────────────────────────────────── */}
-      <View style={styles.toggleRow}>
-        <View style={styles.toggleLabelGroup}>
-          <Text style={styles.toggleLabel}>Extra Focus Mode</Text>
-          <Text style={styles.toggleDesc}>
-            Timer continues silently after expiry
-          </Text>
-        </View>
-        <TouchableOpacity
-          style={[styles.toggle, extraFocusEnabled && styles.toggleOn]}
-          onPress={() => setExtraFocusEnabled(!extraFocusEnabled)}
-        >
-          <Text style={[styles.toggleText, extraFocusEnabled && styles.toggleTextOn]}>
-            {extraFocusEnabled ? 'ON' : 'OFF'}
-          </Text>
-        </TouchableOpacity>
-      </View>
-
+      <Text style={styles.wordmark}>統計</Text>
       <View style={styles.hairline} />
 
       {/* ── Today / Week tabs ──────────────────────────────────────────── */}
@@ -79,7 +56,7 @@ export default function StatisticsScreen() {
             onPress={() => setView(v)}
           >
             <Text style={[styles.viewTabText, view === v && styles.viewTabTextActive]}>
-              {v === 'today' ? 'Today' : 'This Week'}
+              {v === 'today' ? '今日' : '本週'}
             </Text>
             {view === v && <View style={styles.viewTabUnderline} />}
           </TouchableOpacity>
@@ -92,21 +69,21 @@ export default function StatisticsScreen() {
       <View style={styles.summaryRow}>
         <View style={styles.summaryItem}>
           <Text style={[styles.summaryNumber, { color: C.accent }]}>{completedCount}</Text>
-          <Text style={styles.summaryLabel}>Completed</Text>
+          <Text style={styles.summaryLabel}>完成</Text>
         </View>
 
         <View style={styles.summaryDivider} />
 
         <View style={styles.summaryItem}>
           <Text style={[styles.summaryNumber, { color: C.muted }]}>{abandonedCount}</Text>
-          <Text style={styles.summaryLabel}>Abandoned</Text>
+          <Text style={styles.summaryLabel}>放棄</Text>
         </View>
 
         <View style={styles.summaryDivider} />
 
         <View style={styles.summaryItem}>
           <Text style={[styles.summaryNumber, { color: C.body }]}>{extraFocusMinutes}</Text>
-          <Text style={styles.summaryLabel}>Extra Min</Text>
+          <Text style={styles.summaryLabel}>延伸分</Text>
         </View>
       </View>
 
@@ -121,7 +98,7 @@ export default function StatisticsScreen() {
             onPress={() => setBreakdownTab(bt)}
           >
             <Text style={[styles.viewTabText, breakdownTab === bt && styles.viewTabTextActive]}>
-              {bt === 'tag' ? 'By Tag' : 'By Task'}
+              {bt === 'tag' ? '按標籤' : '按任務'}
             </Text>
             {breakdownTab === bt && <View style={styles.viewTabUnderline} />}
           </TouchableOpacity>
@@ -134,7 +111,7 @@ export default function StatisticsScreen() {
       {breakdownTab === 'tag' && (
         <>
           {tagBreakdown.length === 0 ? (
-            <Text style={styles.emptyText}>No sessions in this period</Text>
+            <Text style={styles.emptyText}>此期間無專注記錄</Text>
           ) : (
             tagBreakdown.map((item, idx) => (
               <View
@@ -156,7 +133,7 @@ export default function StatisticsScreen() {
       {breakdownTab === 'task' && (
         <>
           {taskBreakdown.length === 0 ? (
-            <Text style={styles.emptyText}>No completed sessions in this period</Text>
+            <Text style={styles.emptyText}>此期間無完成記錄</Text>
           ) : (
             taskBreakdown.map((item, idx) => (
               <View
@@ -194,32 +171,6 @@ const styles = StyleSheet.create({
     marginHorizontal: 24,
     marginBottom: 24,
   },
-
-  // ── Extra focus toggle ──
-  toggleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 24,
-    marginBottom: 24,
-    gap: 16,
-  },
-  toggleLabelGroup: { flex: 1 },
-  toggleLabel: { ...T.bodyMD, color: C.onDark },
-  toggleDesc: { ...T.bodySM, marginTop: 2 },
-
-  toggle: {
-    borderWidth: 1,
-    borderColor: C.hairlineStrong,
-    borderRadius: 9999,
-    paddingVertical: 6,
-    paddingHorizontal: 16,
-    minWidth: 60,
-    alignItems: 'center',
-  },
-  toggleOn: { borderColor: C.onDark },
-  toggleText: { ...T.button, color: C.muted },
-  toggleTextOn: { color: C.onDark },
 
   // ── View tabs ──
   viewTabRow: {

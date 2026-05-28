@@ -42,10 +42,10 @@ export default function MainNavigator() {
         tabBarIconStyle: { display: 'none' },
       }}
     >
-      <Tab.Screen name="Timer"      component={TimerScreen}      />
-      <Tab.Screen name="Tasks"      component={TasksScreen}      />
-      <Tab.Screen name="Statistics" component={StatisticsScreen} />
-      <Tab.Screen name="Settings"   component={SettingsScreen}   />
+      <Tab.Screen name="Timer"      component={TimerScreen}      options={{ tabBarLabel: '計時' }} />
+      <Tab.Screen name="Tasks"      component={TasksScreen}      options={{ tabBarLabel: '任務' }} />
+      <Tab.Screen name="Statistics" component={StatisticsScreen} options={{ tabBarLabel: '統計' }} />
+      <Tab.Screen name="Settings"   component={SettingsScreen}   options={{ tabBarLabel: '設定' }} />
     </Tab.Navigator>
   );
 }

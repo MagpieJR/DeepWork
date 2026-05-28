@@ -121,13 +121,13 @@ export default function TimerScreen() {
   const handleStart = useCallback(async () => {
     setStartError('');
     if (!selectedTagId) {
-      setStartError('Select a tag to begin.');
+      setStartError('請先選擇標籤。');
       return;
     }
     try {
       await startSession('Timer');
     } catch (e: any) {
-      Alert.alert('Error', e.message);
+      Alert.alert('錯誤', e.message);
     }
   }, [selectedTagId, startSession]);
 
@@ -138,12 +138,12 @@ export default function TimerScreen() {
     const extraMin = Math.floor(extraSeconds / 60);
     return (
       <Pressable style={styles.fullscreen} onPress={onTapCompletion}>
-        <Text style={styles.completionLabel}>Session Complete</Text>
+        <Text style={styles.completionLabel}>專注完成</Text>
         {extraMin > 0 && (
-          <Text style={styles.completionExtra}>+{extraMin} min extra</Text>
+          <Text style={styles.completionExtra}>+{extraMin} 分鐘延伸</Text>
         )}
         <View style={styles.hairline} />
-        <Text style={styles.completionHint}>Tap anywhere to continue</Text>
+        <Text style={styles.completionHint}>點任意處繼續</Text>
       </Pressable>
     );
   }
@@ -170,7 +170,7 @@ export default function TimerScreen() {
       >
         {/* Phase label */}
         <Text style={styles.activePhaseLabel}>
-          {phase === 'countdown' ? 'Focus' : 'Extra Focus'}
+          {phase === 'countdown' ? '專注中' : '延伸專注'}
         </Text>
 
         {/* Timer */}
@@ -179,7 +179,7 @@ export default function TimerScreen() {
         {/* Abandon bar */}
         {phase === 'countdown' && (
           <View style={styles.abandonArea}>
-            <Text style={styles.abandonHintText}>Hold 5 seconds to abandon</Text>
+            <Text style={styles.abandonHintText}>長按 5 秒放棄</Text>
             <View style={styles.progressTrack}>
               <Animated.View style={[styles.progressFill, { width: progressWidth }]} />
             </View>
@@ -187,7 +187,7 @@ export default function TimerScreen() {
         )}
 
         {phase === 'extra' && (
-          <Text style={styles.extraHint}>Tap anywhere to stop</Text>
+          <Text style={styles.extraHint}>點任意處停止</Text>
         )}
       </Pressable>
     );
@@ -208,9 +208,9 @@ export default function TimerScreen() {
       {/* ── Tag selector ─────────────────────────────────────────────────── */}
       <View style={styles.selectorBlock}>
         <View style={styles.selectorHeader}>
-          <Text style={styles.selectorLabel}>Tag</Text>
+          <Text style={styles.selectorLabel}>標籤</Text>
           <TouchableOpacity onPress={() => setTagModalVisible(true)}>
-            <Text style={styles.manageLink}>Manage</Text>
+            <Text style={styles.manageLink}>管理</Text>
           </TouchableOpacity>
         </View>
 
@@ -224,7 +224,7 @@ export default function TimerScreen() {
               <Text style={styles.pickerText}>{selectedTag.name}</Text>
             </View>
           ) : (
-            <Text style={styles.pickerPlaceholder}>Select a tag</Text>
+            <Text style={styles.pickerPlaceholder}>選擇標籤</Text>
           )}
           <Text style={styles.chevron}>{tagPickerOpen ? '▲' : '▼'}</Text>
         </TouchableOpacity>
@@ -247,7 +247,7 @@ export default function TimerScreen() {
               </TouchableOpacity>
             ))}
             {tags.length === 0 && (
-              <Text style={styles.dropdownEmpty}>No tags — tap Manage to create one</Text>
+              <Text style={styles.dropdownEmpty}>尚無標籤 — 點管理新增</Text>
             )}
           </ScrollView>
         )}
@@ -256,14 +256,14 @@ export default function TimerScreen() {
       {/* ── Task selector (optional) ──────────────────────────────────────── */}
       {selectedTagId && (
         <View style={styles.selectorBlock}>
-          <Text style={styles.selectorLabel}>Task  <Text style={styles.optional}>optional</Text></Text>
+          <Text style={styles.selectorLabel}>任務  <Text style={styles.optional}>選填</Text></Text>
 
           <TouchableOpacity
             style={styles.pickerRow}
             onPress={() => { setTaskPickerOpen((v) => !v); setTagPickerOpen(false); }}
           >
             <Text style={selectedTaskId ? styles.pickerText : styles.pickerPlaceholder}>
-              {selectedTaskId ? (selectedTask?.title ?? 'Free Focus') : 'Free Focus'}
+              {selectedTaskId ? (selectedTask?.title ?? '自由專注') : '自由專注'}
             </Text>
             <Text style={styles.chevron}>{taskPickerOpen ? '▲' : '▼'}</Text>
           </TouchableOpacity>
@@ -274,7 +274,7 @@ export default function TimerScreen() {
                 style={styles.dropdownItem}
                 onPress={() => { setSelectedTask(null); setTaskPickerOpen(false); }}
               >
-                <Text style={styles.dropdownItemText}>Free Focus</Text>
+                <Text style={styles.dropdownItemText}>自由專注</Text>
               </TouchableOpacity>
               {visibleTasks.map((t) => (
                 <TouchableOpacity
@@ -286,7 +286,7 @@ export default function TimerScreen() {
                 </TouchableOpacity>
               ))}
               {visibleTasks.length === 0 && (
-                <Text style={styles.dropdownEmpty}>No tasks for this tag</Text>
+                <Text style={styles.dropdownEmpty}>此標籤無任務</Text>
               )}
             </ScrollView>
           )}
@@ -302,7 +302,7 @@ export default function TimerScreen() {
         onPress={handleStart}
         disabled={!selectedTagId}
       >
-        <Text style={styles.startBtnText}>Start Session</Text>
+        <Text style={styles.startBtnText}>開始專注</Text>
       </TouchableOpacity>
 
       {/* Tag modal */}

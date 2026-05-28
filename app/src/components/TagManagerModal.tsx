@@ -66,10 +66,10 @@ export default function TagManagerModal({ visible, onClose }: Props) {
   const handleSave = async () => {
     setError('');
     const trimmed = formName.trim();
-    if (!trimmed) { setError('Tag name is required.'); return; }
+    if (!trimmed) { setError('請輸入標籤名稱。'); return; }
     const dur = formDuration ? parseInt(formDuration, 10) : undefined;
     if (formDuration && (isNaN(dur!) || dur! < 1)) {
-      setError('Duration must be a positive number.');
+      setError('時長必須為正整數。');
       return;
     }
     try {
@@ -84,21 +84,21 @@ export default function TagManagerModal({ visible, onClose }: Props) {
       }
       resetForm();
     } catch (e: any) {
-      setError(e.message ?? 'An error occurred.');
+      setError(e.message ?? '發生錯誤，請稍後再試。');
     }
   };
 
   const handleDelete = (tag: Tag) => {
     Alert.alert(
-      'Delete Tag',
-      `Delete "${tag.name}"? This cannot be undone.`,
+      '刪除標籤',
+      `確定刪除「${tag.name}」？此操作無法復原。`,
       [
-        { text: 'Cancel', style: 'cancel' },
+        { text: '取消', style: 'cancel' },
         {
-          text: 'Delete', style: 'destructive',
+          text: '刪除', style: 'destructive',
           onPress: async () => {
             try { await deleteTag(tag.id); }
-            catch (e: any) { Alert.alert('Cannot Delete', e.message); }
+            catch (e: any) { Alert.alert('無法刪除', e.message); }
           },
         },
       ],
@@ -116,7 +116,7 @@ export default function TagManagerModal({ visible, onClose }: Props) {
           {!showForm && (
             <>
               <View style={styles.sheetHeader}>
-                <Text style={styles.sheetTitle}>Tags</Text>
+                <Text style={styles.sheetTitle}>標籤</Text>
                 <TouchableOpacity onPress={onClose}>
                   <Text style={styles.closeBtn}>✕</Text>
                 </TouchableOpacity>
@@ -143,21 +143,21 @@ export default function TagManagerModal({ visible, onClose }: Props) {
                     </View>
 
                     <TouchableOpacity onPress={() => openEdit(item)} style={styles.rowAction}>
-                      <Text style={styles.rowActionText}>Edit</Text>
+                      <Text style={styles.rowActionText}>編輯</Text>
                     </TouchableOpacity>
                     <TouchableOpacity onPress={() => handleDelete(item)} style={styles.rowAction}>
-                      <Text style={[styles.rowActionText, styles.rowActionDelete]}>Delete</Text>
+                      <Text style={[styles.rowActionText, styles.rowActionDelete]}>刪除</Text>
                     </TouchableOpacity>
                   </View>
                 )}
                 ListEmptyComponent={
-                  <Text style={styles.emptyText}>No tags yet</Text>
+                  <Text style={styles.emptyText}>尚無標籤</Text>
                 }
               />
 
               <View style={styles.hairline} />
               <TouchableOpacity style={[BTN_PRIMARY, styles.newTagBtn]} onPress={openCreate}>
-                <Text style={styles.newTagBtnText}>New Tag</Text>
+                <Text style={styles.newTagBtnText}>新增標籤</Text>
               </TouchableOpacity>
             </>
           )}
@@ -167,7 +167,7 @@ export default function TagManagerModal({ visible, onClose }: Props) {
             <>
               <View style={styles.sheetHeader}>
                 <Text style={styles.sheetTitle}>
-                  {editingTag ? 'Edit Tag' : 'New Tag'}
+                  {editingTag ? '編輯標籤' : '新增標籤'}
                 </Text>
                 <TouchableOpacity onPress={resetForm}>
                   <Text style={styles.closeBtn}>✕</Text>
@@ -175,17 +175,17 @@ export default function TagManagerModal({ visible, onClose }: Props) {
               </View>
               <View style={styles.hairline} />
 
-              <Text style={styles.fieldLabel}>Name</Text>
+              <Text style={styles.fieldLabel}>名稱</Text>
               <TextInput
                 style={styles.inputUnderline}
-                placeholder="Tag name"
+                placeholder="標籤名稱"
                 placeholderTextColor={C.mutedSoft}
                 value={formName}
                 onChangeText={setFormName}
                 autoFocus
               />
 
-              <Text style={[styles.fieldLabel, { marginTop: 24 }]}>Color</Text>
+              <Text style={[styles.fieldLabel, { marginTop: 24 }]}>顏色</Text>
               <View style={styles.colorRow}>
                 {PRESET_COLORS.map((c) => (
                   <TouchableOpacity
@@ -201,11 +201,11 @@ export default function TagManagerModal({ visible, onClose }: Props) {
               </View>
 
               <Text style={[styles.fieldLabel, { marginTop: 24 }]}>
-                Default Duration (min)  <Text style={styles.optional}>optional</Text>
+                預設時長（分）  <Text style={styles.optional}>選填</Text>
               </Text>
               <TextInput
                 style={styles.inputUnderline}
-                placeholder="Leave blank to use global default"
+                placeholder="留空使用全域預設"
                 placeholderTextColor={C.mutedSoft}
                 value={formDuration}
                 onChangeText={setFormDuration}
@@ -217,10 +217,10 @@ export default function TagManagerModal({ visible, onClose }: Props) {
 
               <View style={styles.formBtns}>
                 <TouchableOpacity style={[BTN_GHOST, styles.cancelBtn]} onPress={resetForm}>
-                  <Text style={styles.cancelBtnText}>Cancel</Text>
+                  <Text style={styles.cancelBtnText}>取消</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={[BTN_PRIMARY, styles.saveBtn]} onPress={handleSave}>
-                  <Text style={styles.saveBtnText}>Save</Text>
+                  <Text style={styles.saveBtnText}>儲存</Text>
                 </TouchableOpacity>
               </View>
             </>

@@ -18,12 +18,14 @@ import { C, T, MONO, BTN_PRIMARY, BTN_GHOST } from '../theme';
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const TABS: { key: TaskType; label: string }[] = [
-  { key: 'daily',     label: 'Daily'     },
-  { key: 'scheduled', label: 'Scheduled' },
-  { key: 'weekly',    label: 'Weekly'    },
+  { key: 'daily',     label: '每日' },
+  { key: 'scheduled', label: '排程' },
+  { key: 'weekly',    label: '每週' },
 ];
 
-const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const DAYS = ['日', '一', '二', '三', '四', '五', '六'];
+
+const TAB_LABELS: Record<TaskType, string> = { daily: '每日', scheduled: '排程', weekly: '每週' };
 
 // ─── Form state ───────────────────────────────────────────────────────────────
 
@@ -93,11 +95,11 @@ export default function TasksScreen() {
     const pastDue = await getPastDueScheduled();
     for (const task of pastDue) {
       Alert.alert(
-        'Past-Due Task',
-        `"${task.title}" is past its scheduled time.`,
+        '逾期任務',
+        `「${task.title}」已超過排程時間。`,
         [
-          { text: 'Dismiss', style: 'cancel' },
-          { text: 'Mark Incomplete', onPress: () => toggleComplete(task.id, false) },
+          { text: '關閉', style: 'cancel' },
+          { text: '標記未完成', onPress: () => toggleComplete(task.id, false) },
         ],
       );
     }
@@ -128,18 +130,18 @@ export default function TasksScreen() {
   const handleSave = useCallback(async () => {
     setFormError('');
     const title = form.title.trim();
-    if (!title)       { setFormError('Title is required.');   return; }
-    if (!form.tag_id) { setFormError('Select a tag.');        return; }
+    if (!title)       { setFormError('請輸入標題。');   return; }
+    if (!form.tag_id) { setFormError('請選擇標籤。');   return; }
 
     let scheduled_at: string | undefined;
     if (form.task_type === 'scheduled') {
       if (!form.scheduled_date || !form.scheduled_time) {
-        setFormError('Date and time are required for scheduled tasks.');
+        setFormError('排程任務需填入日期和時間。');
         return;
       }
       const d = new Date(`${form.scheduled_date}T${form.scheduled_time}:00`);
       if (isNaN(d.getTime())) {
-        setFormError('Invalid date/time. Use YYYY-MM-DD and HH:MM.');
+        setFormError('日期/時間格式無效，請使用 YYYY-MM-DD 和 HH:MM。');
         return;
       }
       scheduled_at = d.toISOString();
@@ -149,7 +151,7 @@ export default function TasksScreen() {
     if (form.custom_duration) {
       custom_duration = parseInt(form.custom_duration, 10);
       if (isNaN(custom_duration) || custom_duration < 1) {
-        setFormError('Duration must be a positive number.');
+        setFormError('時長必須為正整數。');
         return;
       }
     }
@@ -178,7 +180,7 @@ export default function TasksScreen() {
       }
       setModalVisible(false);
     } catch (e: any) {
-      setFormError(e.message ?? 'Failed to save task.');
+      setFormError(e.message ?? '儲存任務失敗。');
     } finally {
       setSaving(false);
     }
@@ -186,11 +188,11 @@ export default function TasksScreen() {
 
   const handleDelete = useCallback((task: Task) => {
     Alert.alert(
-      'Delete Task',
-      `Delete "${task.title}"?`,
+      '刪除任務',
+      `確定刪除「${task.title}」？`,
       [
-        { text: 'Cancel', style: 'cancel' },
-        { text: 'Delete', style: 'destructive', onPress: () => deleteTask(task.id) },
+        { text: '取消', style: 'cancel' },
+        { text: '刪除', style: 'destructive', onPress: () => deleteTask(task.id) },
       ],
     );
   }, [deleteTask]);
@@ -206,7 +208,7 @@ export default function TasksScreen() {
 
       {/* ── Header ─────────────────────────────────────────────────────── */}
       <View style={styles.header}>
-        <Text style={styles.title}>Tasks</Text>
+        <Text style={styles.title}>任務</Text>
 
         {/* Type tabs */}
         <View style={styles.tabRow}>
@@ -233,7 +235,7 @@ export default function TasksScreen() {
       <ScrollView style={styles.list} contentContainerStyle={styles.listContent}>
         {visibleTasks.length === 0 && (
           <Text style={styles.emptyText}>
-            No {activeTab} tasks — tap Add Task below
+            沒有{TAB_LABELS[activeTab]}任務 — 點下方新增
           </Text>
         )}
 
@@ -284,7 +286,7 @@ export default function TasksScreen() {
 
                 {task.missed_count > 0 && (
                   <Text style={styles.missedText}>
-                    Missed {task.missed_count}×
+                    錯過 {task.missed_count} 次
                   </Text>
                 )}
               </View>
@@ -312,7 +314,7 @@ export default function TasksScreen() {
       {/* ── Add task ────────────────────────────────────────────────────── */}
       <View style={styles.footer}>
         <TouchableOpacity style={[BTN_PRIMARY, styles.addBtn]} onPress={openAdd}>
-          <Text style={styles.addBtnText}>Add Task</Text>
+          <Text style={styles.addBtnText}>新增任務</Text>
         </TouchableOpacity>
       </View>
 
@@ -326,25 +328,25 @@ export default function TasksScreen() {
 
           <View style={styles.modalSheet}>
             <Text style={styles.modalTitle}>
-              {editingTask ? 'Edit Task' : 'New Task'}
+              {editingTask ? '編輯任務' : '新增任務'}
             </Text>
 
             <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
 
               {/* Title */}
-              <Text style={styles.fieldLabel}>Title</Text>
+              <Text style={styles.fieldLabel}>標題</Text>
               <TextInput
                 style={styles.inputUnderline}
                 value={form.title}
                 onChangeText={(v) => setForm((f) => ({ ...f, title: v }))}
-                placeholder="What needs to get done?"
+                placeholder="要做什麼？"
                 placeholderTextColor={C.mutedSoft}
                 returnKeyType="next"
               />
 
               {/* Tag */}
               <Text style={styles.fieldLabel}>
-                Tag  <Text style={styles.required}>*</Text>
+                標籤  <Text style={styles.required}>*</Text>
               </Text>
               <ScrollView
                 horizontal
@@ -367,12 +369,12 @@ export default function TasksScreen() {
                   );
                 })}
                 {tags.length === 0 && (
-                  <Text style={styles.emptyText}>No tags — create one on Timer screen</Text>
+                  <Text style={styles.emptyText}>尚無標籤 — 請在計時頁面新增</Text>
                 )}
               </ScrollView>
 
               {/* Task type */}
-              <Text style={styles.fieldLabel}>Type</Text>
+              <Text style={styles.fieldLabel}>類型</Text>
               <View style={styles.typeRow}>
                 {TABS.map((tab) => {
                   const sel = form.task_type === tab.key;
@@ -392,13 +394,13 @@ export default function TasksScreen() {
 
               {/* Custom duration */}
               <Text style={styles.fieldLabel}>
-                Custom Duration (min)  <Text style={styles.optional}>optional</Text>
+                自訂時長（分）  <Text style={styles.optional}>選填</Text>
               </Text>
               <TextInput
                 style={styles.inputUnderline}
                 value={form.custom_duration}
                 onChangeText={(v) => setForm((f) => ({ ...f, custom_duration: v }))}
-                placeholder="Leave blank to use tag / global default"
+                placeholder="留空使用標籤或全域預設"
                 placeholderTextColor={C.mutedSoft}
                 keyboardType="numeric"
                 returnKeyType="done"
@@ -408,7 +410,7 @@ export default function TasksScreen() {
               {form.task_type === 'scheduled' && (
                 <>
                   <Text style={styles.fieldLabel}>
-                    Date  <Text style={styles.required}>*</Text>
+                    日期  <Text style={styles.required}>*</Text>
                   </Text>
                   <TextInput
                     style={styles.inputUnderline}
@@ -419,7 +421,7 @@ export default function TasksScreen() {
                     keyboardType="numbers-and-punctuation"
                   />
                   <Text style={styles.fieldLabel}>
-                    Time  <Text style={styles.required}>*</Text>
+                    時間  <Text style={styles.required}>*</Text>
                   </Text>
                   <TextInput
                     style={styles.inputUnderline}
@@ -436,7 +438,7 @@ export default function TasksScreen() {
               {form.task_type === 'weekly' && (
                 <>
                   <Text style={styles.fieldLabel}>
-                    Reminder Day  <Text style={styles.optional}>optional</Text>
+                    提醒日  <Text style={styles.optional}>選填</Text>
                   </Text>
                   <ScrollView
                     horizontal
@@ -463,7 +465,7 @@ export default function TasksScreen() {
                   </ScrollView>
 
                   <Text style={styles.fieldLabel}>
-                    Reminder Time  <Text style={styles.optional}>optional</Text>
+                    提醒時間  <Text style={styles.optional}>選填</Text>
                   </Text>
                   <TextInput
                     style={styles.inputUnderline}
@@ -482,14 +484,14 @@ export default function TasksScreen() {
               {/* Buttons */}
               <View style={styles.modalBtns}>
                 <TouchableOpacity style={[BTN_GHOST, styles.cancelBtn]} onPress={closeModal}>
-                  <Text style={styles.cancelBtnText}>Cancel</Text>
+                  <Text style={styles.cancelBtnText}>取消</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={[BTN_PRIMARY, styles.saveBtn, saving && styles.btnDisabled]}
                   onPress={handleSave}
                   disabled={saving}
                 >
-                  <Text style={styles.saveBtnText}>{saving ? 'Saving' : 'Save'}</Text>
+                  <Text style={styles.saveBtnText}>{saving ? '儲存中' : '儲存'}</Text>
                 </TouchableOpacity>
               </View>
 

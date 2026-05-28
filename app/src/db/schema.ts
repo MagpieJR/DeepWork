@@ -78,6 +78,68 @@ async function migration1(db: SQLite.SQLiteDatabase): Promise<void> {
   await db.execAsync('PRAGMA user_version = 1');
 }
 
+async function migration2(db: SQLite.SQLiteDatabase): Promise<void> {
+  const now = new Date().toISOString();
+
+  const defaultTags: { id: string; taskId: string; name: string; color: string }[] = [
+    { id: '00000000-0000-0000-0000-000000000001', taskId: '00000000-0000-0000-0000-000000000011', name: '工作', color: '#3a7fb5' },
+    { id: '00000000-0000-0000-0000-000000000002', taskId: '00000000-0000-0000-0000-000000000012', name: '閱讀', color: '#3aaa6e' },
+    { id: '00000000-0000-0000-0000-000000000003', taskId: '00000000-0000-0000-0000-000000000013', name: '運動', color: '#cc5555' },
+  ];
+
+  for (const tag of defaultTags) {
+    await db.runAsync(
+      `INSERT OR IGNORE INTO tags (id, name, color, default_duration, updated_at)
+       VALUES (?, ?, ?, NULL, ?)`,
+      tag.id, tag.name, tag.color, now,
+    );
+    await db.runAsync(
+      `INSERT OR IGNORE INTO tasks
+         (id, tag_id, title, task_type, is_free_focus, is_completed, missed_count, updated_at)
+       VALUES (?, ?, 'Free Focus', 'daily', 1, 0, 0, ?)`,
+      tag.taskId, tag.id, now,
+    );
+  }
+
+  await db.execAsync('PRAGMA user_version = 2');
+}
+
+async function migration4(db: SQLite.SQLiteDatabase): Promise<void> {
+  const now = new Date().toISOString();
+
+  await db.runAsync(
+    `INSERT OR IGNORE INTO tags (id, name, color, default_duration, updated_at)
+     VALUES (?, ?, ?, NULL, ?)`,
+    '00000000-0000-0000-0000-000000000005', '健身', '#c48a3f', now,
+  );
+  await db.runAsync(
+    `INSERT OR IGNORE INTO tasks
+       (id, tag_id, title, task_type, is_free_focus, is_completed, missed_count, updated_at)
+     VALUES (?, ?, 'Free Focus', 'daily', 1, 0, 0, ?)`,
+    '00000000-0000-0000-0000-000000000015', '00000000-0000-0000-0000-000000000005', now,
+  );
+
+  await db.execAsync('PRAGMA user_version = 4');
+}
+
+async function migration3(db: SQLite.SQLiteDatabase): Promise<void> {
+  const now = new Date().toISOString();
+
+  await db.runAsync(
+    `INSERT OR IGNORE INTO tags (id, name, color, default_duration, updated_at)
+     VALUES (?, ?, ?, NULL, ?)`,
+    '00000000-0000-0000-0000-000000000004', '學習', '#7b6cc4', now,
+  );
+  await db.runAsync(
+    `INSERT OR IGNORE INTO tasks
+       (id, tag_id, title, task_type, is_free_focus, is_completed, missed_count, updated_at)
+     VALUES (?, ?, 'Free Focus', 'daily', 1, 0, 0, ?)`,
+    '00000000-0000-0000-0000-000000000014', '00000000-0000-0000-0000-000000000004', now,
+  );
+
+  await db.execAsync('PRAGMA user_version = 3');
+}
+
 /**
  * Versioned migration runner.
  *
@@ -93,6 +155,15 @@ export async function migrateDatabase(db: SQLite.SQLiteDatabase): Promise<void> 
     await migration1(db);
   }
 
-  // Future migrations follow the same pattern:
-  // if (version < 2) { await migration2(db); }
+  if (version < 2) {
+    await migration2(db);
+  }
+
+  if (version < 3) {
+    await migration3(db);
+  }
+
+  if (version < 4) {
+    await migration4(db);
+  }
 }

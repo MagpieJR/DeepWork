@@ -14,9 +14,9 @@ import VolumeControls from '../components/VolumeControls';
 import { C, T, MONO } from '../theme';
 
 const NOTIFICATION_OPTIONS: { label: string; value: NotificationType }[] = [
-  { label: 'Vibration',  value: 'vibration' },
-  { label: 'Sound',      value: 'sound'     },
-  { label: 'Both',       value: 'both'      },
+  { label: '震動', value: 'vibration' },
+  { label: '聲音', value: 'sound'     },
+  { label: '兩者', value: 'both'      },
 ];
 
 export default function SettingsScreen() {
@@ -41,7 +41,7 @@ export default function SettingsScreen() {
   const handleDurationSave = async () => {
     const n = parseInt(durationInput, 10);
     if (isNaN(n) || n < 1) {
-      Alert.alert('Invalid', 'Duration must be a positive number.');
+      Alert.alert('無效', '時長必須為正整數。');
       setDurationInput(String(global_duration));
       return;
     }
@@ -52,17 +52,17 @@ export default function SettingsScreen() {
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
 
       {/* ── Header ────────────────────────────────────────────────────── */}
-      <Text style={styles.wordmark}>Settings</Text>
+      <Text style={styles.wordmark}>設定</Text>
       <View style={styles.hairline} />
 
       {/* ── Section: Timer ────────────────────────────────────────────── */}
-      <Text style={styles.sectionLabel}>Timer</Text>
+      <Text style={styles.sectionLabel}>計時器</Text>
 
       {/* Global pomodoro duration */}
       <View style={styles.row}>
         <View style={styles.rowLeft}>
-          <Text style={styles.rowTitle}>Default Duration</Text>
-          <Text style={styles.rowDesc}>Used when no tag or task override is set</Text>
+          <Text style={styles.rowTitle}>預設時長</Text>
+          <Text style={styles.rowDesc}>未設定標籤或任務覆蓋時使用</Text>
         </View>
         <View style={styles.durationInput}>
           <TextInput
@@ -74,7 +74,7 @@ export default function SettingsScreen() {
             onEndEditing={handleDurationSave}
             onSubmitEditing={handleDurationSave}
           />
-          <Text style={styles.unitLabel}>min</Text>
+          <Text style={styles.unitLabel}>分</Text>
         </View>
       </View>
 
@@ -83,9 +83,9 @@ export default function SettingsScreen() {
       {/* Extra focus mode */}
       <View style={styles.row}>
         <View style={styles.rowLeft}>
-          <Text style={styles.rowTitle}>Extra Focus Mode</Text>
+          <Text style={styles.rowTitle}>延伸專注模式</Text>
           <Text style={styles.rowDesc}>
-            Timer continues counting up silently after expiry
+            計時結束後靜音繼續計時
           </Text>
         </View>
         <TouchableOpacity
@@ -93,7 +93,7 @@ export default function SettingsScreen() {
           onPress={() => setExtraFocusEnabled(!extraFocusEnabled)}
         >
           <Text style={[styles.toggleText, extraFocusEnabled && styles.toggleTextOn]}>
-            {extraFocusEnabled ? 'ON' : 'OFF'}
+            {extraFocusEnabled ? '開' : '關'}
           </Text>
         </TouchableOpacity>
       </View>
@@ -101,10 +101,10 @@ export default function SettingsScreen() {
       <View style={styles.hairline} />
 
       {/* ── Section: Notifications ────────────────────────────────────── */}
-      <Text style={styles.sectionLabel}>Notifications</Text>
+      <Text style={styles.sectionLabel}>通知</Text>
 
       <View style={styles.row}>
-        <Text style={styles.rowTitle}>Session Completion</Text>
+        <Text style={styles.rowTitle}>專注完成</Text>
       </View>
 
       <View style={styles.optionGroup}>
@@ -127,7 +127,7 @@ export default function SettingsScreen() {
       <View style={styles.hairline} />
 
       {/* ── Section: Ambient Sound ────────────────────────────────────── */}
-      <Text style={styles.sectionLabel}>Ambient Sound</Text>
+      <Text style={styles.sectionLabel}>環境音</Text>
 
       <View style={styles.volumeBlock}>
         <VolumeControls />

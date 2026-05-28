@@ -25,7 +25,7 @@ export default function LoginScreen() {
   const handleEmailAuth = async () => {
     setError('');
     if (!email.trim() || !password) {
-      setError('Email and password are required.');
+      setError('請輸入電子郵件和密碼。');
       return;
     }
     setLoading(true);
@@ -36,7 +36,7 @@ export default function LoginScreen() {
           : await signUpWithEmail(email.trim(), password);
       if (authError) setError(authError.message);
     } catch (e: any) {
-      setError(e.message ?? 'An error occurred.');
+      setError(e.message ?? '發生錯誤，請稍後再試。');
     } finally {
       setLoading(false);
     }
@@ -49,7 +49,7 @@ export default function LoginScreen() {
       const { error: authError } = await supabase.auth.signInWithOAuth({ provider });
       if (authError) setError(authError.message);
     } catch (e: any) {
-      setError(e.message ?? 'An error occurred.');
+      setError(e.message ?? '發生錯誤，請稍後再試。');
     } finally {
       setLoading(false);
     }
@@ -66,10 +66,7 @@ export default function LoginScreen() {
       >
         {/* Wordmark */}
         <Text style={styles.wordmark}>DeepWork</Text>
-        <Text style={styles.subtitle}>Focus deeper, every day</Text>
-
-        {/* Hairline divider */}
-        <View style={styles.hairline} />
+        <Text style={styles.subtitle}>專注更深，每一天</Text>
 
         {/* OAuth */}
         <TouchableOpacity
@@ -77,7 +74,7 @@ export default function LoginScreen() {
           onPress={() => handleOAuth('google')}
           disabled={loading}
         >
-          <Text style={styles.oauthBtnText}>Continue with Google</Text>
+          <Text style={styles.oauthBtnText}>以 Google 帳號登入</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -85,7 +82,7 @@ export default function LoginScreen() {
           onPress={() => handleOAuth('apple')}
           disabled={loading}
         >
-          <Text style={styles.oauthBtnText}>Continue with Apple</Text>
+          <Text style={styles.oauthBtnText}>以 Apple 帳號登入</Text>
         </TouchableOpacity>
 
         {/* Divider */}
@@ -97,7 +94,7 @@ export default function LoginScreen() {
 
         {/* Email input — underline only */}
         <View style={styles.inputGroup}>
-          <Text style={styles.inputLabel}>Email</Text>
+          <Text style={styles.inputLabel}>電子郵件</Text>
           <TextInput
             style={styles.input}
             value={email}
@@ -111,7 +108,7 @@ export default function LoginScreen() {
         </View>
 
         <View style={styles.inputGroup}>
-          <Text style={styles.inputLabel}>Password</Text>
+          <Text style={styles.inputLabel}>密碼</Text>
           <TextInput
             style={styles.input}
             value={password}
@@ -135,7 +132,7 @@ export default function LoginScreen() {
             <ActivityIndicator color={C.onDark} />
           ) : (
             <Text style={styles.primaryBtnText}>
-              {mode === 'signin' ? 'Sign In' : 'Create Account'}
+              {mode === 'signin' ? '登入' : '建立帳號'}
             </Text>
           )}
         </TouchableOpacity>
@@ -147,8 +144,8 @@ export default function LoginScreen() {
         >
           <Text style={styles.switchText}>
             {mode === 'signin'
-              ? "No account?  Sign up"
-              : "Have an account?  Sign in"}
+              ? "沒有帳號？  註冊"
+              : "已有帳號？  登入"}
           </Text>
         </TouchableOpacity>
       </ScrollView>
