@@ -398,7 +398,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: C.canvas,
     paddingHorizontal: 28,
-    paddingTop: 64,
+    paddingTop: 80,
   },
   wordmark: {
     ...T.wordmark,

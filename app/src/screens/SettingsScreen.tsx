@@ -139,7 +139,7 @@ export default function SettingsScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: C.canvas },
-  content: { paddingTop: 56, paddingBottom: 80 },
+  content: { paddingTop: 80, paddingBottom: 80 },
 
   wordmark: {
     ...T.wordmark,

@@ -157,7 +157,7 @@ export default function StatisticsScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: C.canvas },
-  content: { paddingTop: 56, paddingBottom: 60 },
+  content: { paddingTop: 80, paddingBottom: 60 },
 
   wordmark: {
     ...T.wordmark,
