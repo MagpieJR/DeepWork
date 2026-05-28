@@ -26,15 +26,15 @@ export default function MainNavigator() {
           backgroundColor: C.canvas,
           borderTopColor: C.hairline,
           borderTopWidth: 1,
-          height: Platform.OS === 'ios' ? 96 : 72,
-          paddingBottom: Platform.OS === 'ios' ? 40 : 20,
+          height: Platform.OS === 'ios' ? 105 : 72,
+          paddingBottom: Platform.OS === 'ios' ? 60 : 20,
           paddingTop: 10,
         },
         tabBarActiveTintColor: C.onDark,
         tabBarInactiveTintColor: C.muted,
         tabBarLabelStyle: {
           fontFamily: MONO,
-          fontSize: 9,
+          fontSize: 10,
           letterSpacing: 1.5,
           textTransform: 'uppercase',
           marginTop: 2,
@@ -42,10 +42,10 @@ export default function MainNavigator() {
         tabBarIconStyle: { display: 'none' },
       }}
     >
-      <Tab.Screen name="Timer"      component={TimerScreen}      options={{ tabBarLabel: '計時' }} />
-      <Tab.Screen name="Tasks"      component={TasksScreen}      options={{ tabBarLabel: '任務' }} />
+      <Tab.Screen name="Timer" component={TimerScreen} options={{ tabBarLabel: '計時' }} />
+      <Tab.Screen name="Tasks" component={TasksScreen} options={{ tabBarLabel: '任務' }} />
       <Tab.Screen name="Statistics" component={StatisticsScreen} options={{ tabBarLabel: '統計' }} />
-      <Tab.Screen name="Settings"   component={SettingsScreen}   options={{ tabBarLabel: '設定' }} />
+      <Tab.Screen name="Settings" component={SettingsScreen} options={{ tabBarLabel: '設定' }} />
     </Tab.Navigator>
   );
 }
